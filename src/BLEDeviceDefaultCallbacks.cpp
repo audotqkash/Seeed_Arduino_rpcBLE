@@ -72,12 +72,10 @@ T_APP_RESULT BLEScan::gapCallbackDefault(uint8_t cb_type, void *p_cb_data) {
 			if (m_scanResults.m_vectorAdvertisedDevices.count(advertisedAddress.toString()) != 0) {
 				found = true;
 			}
-
             if (found && !m_wantDuplicates) {  // If we found a previous entry AND we don't want duplicates, then we are done.
 				vTaskDelay(1);  // <--- allow to switch task in case we scan infinity and dont have new devices to report, or we are blocked here
 				break;
 			}
-
 			BLEAdvertisedDevice *advertisedDevice = new BLEAdvertisedDevice();		
 			advertisedDevice->setAddress(advertisedAddress);
 			advertisedDevice->setRSSI(p_data->p_le_scan_info->rssi);
@@ -87,7 +85,10 @@ T_APP_RESULT BLEScan::gapCallbackDefault(uint8_t cb_type, void *p_cb_data) {
 			
 			if (!found) {   // If we have previously seen this device, don't record it again.
 				m_scanResults.m_vectorAdvertisedDevices.insert(std::pair<std::string, BLEAdvertisedDevice*>(advertisedAddress.toString(), advertisedDevice));
-			}			
+			}else{
+                auto regdat = m_scanResults.m_vectorAdvertisedDevices.find(advertisedAddress.toString());
+                regdat->second->diffUpdate(advertisedDevice);
+            }
 			
             if (m_pAdvertisedDeviceCallbacks) {
                 m_pAdvertisedDeviceCallbacks->onResult(*advertisedDevice);
