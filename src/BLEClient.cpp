@@ -317,7 +317,11 @@ T_APP_RESULT BLEClient::clientCallbackDefault(T_CLIENT_ID client_id, uint8_t con
 			);
 			
 			RPC_DEBUG(pRemoteService->getUUID().toString().c_str());
-			m_servicesMap.insert(std::pair<std::string, BLERemoteService*>(uuid.toString(), pRemoteService));			         				
+			if(uuid.toString().compare("<NULL>") == 0){
+				m_servicesMap.insert(std::pair<std::string, BLERemoteService*>(std::string(uuid.str()), pRemoteService));
+			}else{
+				m_servicesMap.insert(std::pair<std::string, BLERemoteService*>(uuid.toString(), pRemoteService));
+			}
 			break;
         }
         case DISC_RESULT_ALL_SRV_UUID128:
@@ -332,7 +336,11 @@ T_APP_RESULT BLEClient::clientCallbackDefault(T_CLIENT_ID client_id, uint8_t con
 			);
 			
 			RPC_DEBUG(pRemoteService->getUUID().toString().c_str());  
-			m_servicesMap.insert(std::pair<std::string, BLERemoteService*>(uuid.toString(), pRemoteService));			
+			if(uuid.toString().compare("<NULL>") == 0){
+				m_servicesMap.insert(std::pair<std::string, BLERemoteService*>(std::string(uuid.str()), pRemoteService));
+			}else{
+				m_servicesMap.insert(std::pair<std::string, BLERemoteService*>(uuid.toString(), pRemoteService));
+			}
             break;
         }
         case DISC_RESULT_SRV_DATA:
