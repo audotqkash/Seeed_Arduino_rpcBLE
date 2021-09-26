@@ -42,6 +42,33 @@ T_GAP_REMOTE_ADDR_TYPE BLEAdvertisedDevice::getAddressType() {
 }
 
 /**
+ * @brief update(not overwrite, add only) the information
+ * @return no value
+ */
+void BLEAdvertisedDevice::diffUpdate(BLEAdvertisedDevice *dev)
+{
+    if(!haveName() && dev->haveName())
+    {
+        Serial.printf("Can update Name %s\n", dev->m_name.c_str());
+        m_name = dev->m_name;
+        m_haveName = true;
+    }
+
+    if(dev->haveServiceUUID()){
+        Serial.println("Can update ServiceUUID (Not implemented)");
+    }
+
+    if(dev->haveRSSI()){
+        Serial.printf("Can update RSSI (%d)\n", dev->m_rssi);
+        m_rssi = dev->m_rssi;
+    }
+
+    if(dev->haveTXPower()){
+        Serial.println("Can update TXPower (Not implemented)");
+    }
+}
+
+/**
  * @brief Check advertised serviced for existence required UUID
  * @return Return true if service is advertised
  */
@@ -199,6 +226,14 @@ bool BLEAdvertisedDevice::haveManufacturerData() {
 } // haveManufacturerData
 
 /**
+ * @brief   Does this advertisement have Local Name?
+ * @return  True if there is LocalName data present.
+ */
+bool BLEAdvertisedDevice::haveName(){
+    return m_haveName;
+} // haveName
+
+/**
  * @brief Does this advertisement have a signal strength value?
  * @return True if there is a signal strength value present.
  */
@@ -291,7 +326,7 @@ void BLEAdvertisedDevice::parseAdvertisement(T_LE_CB_DATA *p_data) {
 
                     while (i >= 2) {
                         _serviceList[_serviceCount++] = (BLEUUID(p_uuid, 2));
-						setServiceUUID(BLEUUID(p_uuid, 2));
+					    setServiceUUID(BLEUUID(std::string(_serviceList[_serviceCount - 1].str())));
                         p_uuid += 2;
                         i -= 2;
                     }
@@ -305,7 +340,7 @@ void BLEAdvertisedDevice::parseAdvertisement(T_LE_CB_DATA *p_data) {
 					RPC_DEBUG("GAP_ADTYPE_32BIT_COMPLETE\n\r");
                     while (i >= 4) {
                         _serviceList[_serviceCount++] = (BLEUUID(p_uuid, 4));
-						setServiceUUID(BLEUUID(p_uuid, 4));
+					    setServiceUUID(BLEUUID(std::string(_serviceList[_serviceCount - 1].str())));
                         p_uuid += 4;
                         i -= 4;
                     }
@@ -317,7 +352,7 @@ void BLEAdvertisedDevice::parseAdvertisement(T_LE_CB_DATA *p_data) {
 					RPC_DEBUG("GAP_ADTYPE_128BIT_COMPLETE\n\r");
                     uint8_t *p_uuid = buffer;
                     _serviceList[_serviceCount++] = (BLEUUID(p_uuid, 16));
-					setServiceUUID(BLEUUID(p_uuid, 16));
+					setServiceUUID(BLEUUID(std::string(_serviceList[_serviceCount - 1].str())));
                     break;
                 }
 
@@ -325,6 +360,7 @@ void BLEAdvertisedDevice::parseAdvertisement(T_LE_CB_DATA *p_data) {
                 case GAP_ADTYPE_LOCAL_NAME_COMPLETE: {
                     buffer[length - 1] = '\0';
                     m_name = (std::string((char*)buffer));
+                    m_haveName = true;
                     break;
                 }
 

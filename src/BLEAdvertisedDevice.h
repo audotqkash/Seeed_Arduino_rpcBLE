@@ -46,6 +46,7 @@ public:
 	bool		isAdvertisingService(BLEUUID uuid);
 	T_GAP_REMOTE_ADDR_TYPE getAddressType();
 	bool        haveManufacturerData();
+	void diffUpdate(BLEAdvertisedDevice *dev);
 private:
 	friend class BLEScan;
 	void clear(void);
